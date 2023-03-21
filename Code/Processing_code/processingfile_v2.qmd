@@ -1,40 +1,31 @@
 ---
-title: "An example cleaning script with code pulled in from R script"
+title: "Cleaning the Penguin Data - an example"
 author: "Marguerite Butler"
-date: "2023-02-15"
+date: "2023-03-20"
 output: html_document
 ---
 
 
 # Processing script (data cleaning) with code pulled in from script
 
-This is essentially the same as the other Quarto file, but now the code is not inside this file. Instead, it is pulled in from the R script using the code chunk labels.
+This quarto file documents the data cleaning of the raw data on penquins `penguins_raw_dirty.csv` in the raw data folder `../../Data/Raw_data/`. This script will produce a cleaned data file stored in the directory `../../Data/Processed_data`. The clean data file is named `processeddata.rds` and also saved in `.csv` formats.
 
+To run this code, run `quarto preview processingfile_v2.qmd` from the Processing code directory `project_root/Code/Processing_code`.  Alternatively, you can prepend the relative path to the file from your current working directory. To generate the `.html` output, change  `quarto preview` to `quarto render`. 
 
 # Setup
 
-This needs to run to load the R script so we can include the code chunks below.
+This code is needed pull the code chunks contained in `processingcode.R` into active memory:
 
-Note that you can pull in more than one R script if you want.
-
-```{r, include=FALSE, cache=FALSE}
+```{r, include=TRUE, cache=FALSE}
 knitr::read_chunk('processingcode.R')
 ```
 
-Load needed packages. Instead of having R commands here, we can have R do it by pulls in the code from the R script according to the labels. Here the code chuck below is replaced with the `packages` code chunk from `processingcode.R`. 
-
+Load needed packages (from the `packages` code chunk):
 
 ```{r, packages, message = FALSE, warning = FALSE}
 ```
 
 # Data loading
-
-Start R in the same directory that this script resides in `project_root/Code/Processing_code`.  If you need to check your working directory, use `getwd()`.
-
-Either restart R in the correct directory, or navigate to it 
-with `setwd(...relative path to the correct directory...)`. 
-
-**NEVER** put a `setwd()` inside your code, it is bad ettiquite as it probably wonʻt work for anyone else. 
 
 ```{r, loaddata}
 ```
@@ -46,6 +37,7 @@ with `setwd(...relative path to the correct directory...)`.
 ```{r, exploredata}
 ```
 
+We also use short variable names (temporarily) in this script for convenience. We save the cleaned data with the original names, but save the short names at the end to reuse them later. 
 
 # Cleaning
 
@@ -62,8 +54,8 @@ Fix all of the errors.
 
 Also, letʻs shorten Species just keeping the three common names "Adelie", "Gentoo", and "Chinstrap" and delete the rest of the Species character string. 
 
-NOTE: Check your work with each change.  Debug as you go, never all at once. Make sure that the code you save in your script works without error. 
-
+```{r, fixtypos}
+```
 
 ### Continuous data
 
@@ -84,9 +76,8 @@ Now we see that there are three penguins with really really long culmens (300+mm
 ```{r, cleandata3.1}
 ```
 
-Notice that NAʻs will match the condition `cl>300`, because we donʻt really know, so R returns it to be conservative. We donʻt want NAs, so letʻs exclude them with 
-!is.na()  where the ! is "not" or the opposite of is.na. 
-The logical & which requires both conditions to be true (i.e., I want to be rich AND famous):
+Notice that NAʻs will match the condition `cl>300`, NAs will match ANY condition. R does this to be conservative because it is unknown whether it matches or does not match. We donʻt want NAs, so letʻs exclude them with 
+!is.na()  where the ! is "not" or the opposite of is.na:
 
 ```{r, cleandata3.2}
 ```
@@ -103,15 +94,14 @@ Perhaps these are new chicks? But they are supposed to be adults. Letʻs remove 
 ```
 
 
-Mass is the main size variable, so we will probably need to remove the individuals with missing masses in order to  be able to analyze the data. 
+Mass is the main size variable, so we will remove the individuals with missing masses in order to  be able to analyze the data. 
 
-Note: Some analysis methods can deal with missing values, so it's not always necessary. Or it may be fine to have it in some of the variables but probably not the size variable. 
-This should be adjusted based on your planned analysis approach. 
+Note: Some analysis methods can deal with missing values, so it's not always necessary to drop observations with missing data in the non-size variables. Here we will drop observations with missinging mass but leave in NAs in other variables. 
 
 ```{r, cleandata4.2}
 ```
 
-Does it look better?
+These data now look cleaned of impossible values. 
 
 ### Factors
 
@@ -122,49 +112,36 @@ We also want to have Species, Sex, and Island coded as a categorical/factor vari
 
 # Bivariate Plots
 
-Make bivariate plots for any remaining continous data to ensure there are no further errors. It is a good check on the distribution of the data as well. 
+We look through all of the data, variable by variable, or by pairs of variables to check on the distributions of the data and for any potential errors in the data. 
 
-Make histograms or densities of at least mass by discrete category, to check for any potential category errors, extra categories, etc.  
+We make bivariate plots for each continous variable to ensure there are no further errors. It is a good practice to check on the distribution of the data as well. 
 
-You should look through all of the data, variable by variable, or by pairs of variables.
+```{r, bivariateplots}
+```
+
+# Histograms by Species
+
+We make histograms or densities of mass by each species, to check for any potential category errors, extra categories, etc.  
 
 
-# Finalize your cleaned dataset. 
+```{r, histograms}
+```
 
-Drop any variables (columns) that you wonʻt analyze.  If you have extra levels after dropping some values, you may want to relevel your factors (this may or may not happen). 
 
-To specify new levels or orders of levels:
+# Finalize the cleaned dataset. 
+
+Drop any variables (columns) that we wonʻt analyze. We also make a new data dictionary to save with the cleaned data. 
 
 ```{r, finalizedata}
 ```
 # Save data
 
 All done, data is clean now. 
-Let's assign at the end to some final variable
-makes it easier to add steps above
+Finally, we save the clean data as an RDS file, as well as a copy as .csv for archival puproses.
 
 ```{r, savedata}
 ```
 
-Finally, we save the clean data as RDS file. I suggest you save your processed and cleaned data as RDS or RDA/Rdata files, as well as a copy as .csv
-
-RDS/Rdata preserves coding like factors, characters, numeric, etc.  If you save as CSV, that information would get lost.
-However, CSV is better for sharing with others since it's plain text. If you do CSV, you might want to write down somewhere what each variable is (i.e. a data dictionary).
 
 
-# Notes 
 
--  Anything you don't want loaded into the Quarto file but 
-keep in the R file, just give it its own label and then just leave that label out of the Quarto file. For example, you may try excluding some of the excessive comments. 
-
--  Dealing with NA or "bad" data:
-Removing anyone who had "faulty" or missing data is one approach, but it's often not the best. Based on your question and your analysis approach, you might want to do cleaning differently (e.g. keep individuals with some missing information)
-
--  Saving data as RDS:
-I suggest you save your processed and cleaned data as RDS or RDA/Rdata files.  This preserves coding like factors, characters, numeric, etc.  If you save as CSV, that information would get lost.
-However, CSV is better for sharing with others since it's plain text. 
-
--  If you do CSV, you must to write down somewhere what each variable is (i.e. in a data dictionary).
-
--  See here for some suggestions on how to store your processed data:
-<http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata>

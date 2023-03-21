@@ -12,13 +12,6 @@ The cleaned dataset is saved in `../Processed_data/` in  both `.rda` and `.csv` 
 
 The code for processing the raw data is in **Project_template > Code > Processing_code**, and runs from that working directory.  
 
-# Files
-
-`penguins_raw_dirty.csv` raw data with errors that need to be cleaned
-`penguins_raw.csv` original raw data from Palmerpenguins R package
-`datadictionary.csv` data dictionary for raw data (also below)
-`sites.csv` list of study sites and years
-
 # Data Dictionary `penquins_raw_dirty.csv`
 
 |variable| description|
