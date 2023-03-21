@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Marguerite Butler">
-<meta name="dcterms.date" content="2023-03-20">
+<meta name="dcterms.date" content="2023-02-15">
 
-<title>Cleaning the Penguin Data - an example</title>
+<title>An example cleaning script with code pulled in from R script</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -110,7 +110,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Cleaning the Penguin Data - an example</h1>
+<h1 class="title">An example cleaning script with code pulled in from R script</h1>
 </div>
 
 
@@ -127,7 +127,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 20, 2023</p>
+      <p class="date">February 15, 2023</p>
     </div>
   </div>
   
@@ -139,72 +139,87 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <section id="processing-script-data-cleaning-with-code-pulled-in-from-script" class="level1">
 <h1>Processing script (data cleaning) with code pulled in from script</h1>
-<p>This quarto file documents the data cleaning of the raw data on penquins <code>penguins_raw_dirty.csv</code> in the raw data folder <code>../../Data/Raw_data/</code>. This script will produce a cleaned data file stored in the directory <code>../../Data/Processed_data</code>. The clean data file is named <code>processeddata.rds</code> and also saved in <code>.csv</code> formats.</p>
-<p>To run this code, run <code>quarto preview processingfile_v2.qmd</code> from the Processing code directory <code>project_root/Code/Processing_code</code>. Alternatively, you can prepend the relative path to the file from your current working directory. To generate the <code>.html</code> output, change <code>quarto preview</code> to <code>quarto render</code>.</p>
+<p>This is essentially the same as the other Quarto file, but now the code is not inside this file. Instead, it is pulled in from the R script using the code chunk labels.</p>
 </section>
 <section id="setup" class="level1">
 <h1>Setup</h1>
-<p>This code is needed pull the code chunks contained in <code>processingcode.R</code> into active memory:</p>
+<p>This needs to run to load the R script so we can include the code chunks below.</p>
+<p>Note that you can pull in more than one R script if you want.</p>
+<p>Load needed packages. Instead of having R commands here, we can have R do it by pulls in the code from the R script according to the labels. Here the code chuck below is replaced with the <code>packages</code> code chunk from <code>processingcode.R</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">read_chunk</span>(<span class="st">'processingcode.R'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Load needed packages (from the <code>packages</code> code chunk):</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(dplyr) <span class="co">#for data processing/cleaning</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(tidyr) <span class="co">#for data processing/cleaning</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(skimr) <span class="co">#for nice visualization of data </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load needed packages. make sure they are installed.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(dplyr) <span class="co">#for data processing/cleaning</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(tidyr) <span class="co">#for data processing/cleaning</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(skimr) <span class="co">#for nice visualization of data </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="data-loading" class="level1">
 <h1>Data loading</h1>
+<p>Start R in the same directory that this script resides in <code>project_root/Code/Processing_code</code>. If you need to check your working directory, use <code>getwd()</code>.</p>
+<p>Either restart R in the correct directory, or navigate to it with <code>setwd(...relative path to the correct directory...)</code>.</p>
+<p><strong>NEVER</strong> put a <code>setwd()</code> inside your code, it is bad ettiquite as it probably wonʻt work for anyone else.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># path to data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> <span class="st">"../../Data/Raw_data/penguins_raw_dirty.csv"</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="st">"../../Data/Raw_data/"</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># read data. </span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>rawdata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location, <span class="at">check.names=</span><span class="cn">FALSE</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># read the data dictionary</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">paste</span>(data_path, <span class="st">"datadictionary.csv"</span>, <span class="at">sep=</span><span class="st">""</span>))</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(dictionary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#path to data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># If you need to check your working directory, use getwd()</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Either restart R in the correct directory, or navigate to it </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># with setwd(...relative path to the correct directory...). </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># NEVER put a setwd() inside your code, it is bad ettiquite as it </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># probably wonʻt work for anyone else. </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> <span class="st">"../../Data/Raw_data/penguins_raw_dirty.csv"</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="st">"../../Data/Raw_data/"</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#load data. </span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># I am using check.names=F because these names have spaces and parentheses</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># and I want to preserve the original names.</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>rawdata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location, <span class="at">check.names=</span><span class="cn">FALSE</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># We can look in the data dictionary for a variable explanation</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># I am using the paste function here to add the path to the filename. </span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># sep="" adds no space when pasting. </span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># I could have also just saved the complete path to the file and saved </span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># it as dictonary_path. It is up to you. </span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">paste</span>(data_path, <span class="st">"datadictionary.csv"</span>, <span class="at">sep=</span><span class="st">""</span>))</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(dictionary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              variable
-1            studyName
-2        Sample Number
-3              Species
-4               Region
-5               Island
-6                Stage
-7        Individual ID
-8    Clutch Completion
-9             Date Egg
-10  Culmen Length (mm)
-11   Culmen Depth (mm)
-12 Flipper Length (mm)
-13       Body Mass (g)
-14                 Sex
-15   Delta 15 N (o/oo)
-16   Delta 13 C (o/oo)
-17            Comments
-                                                                                       description
-1                                          Sampling expedition from which data were collected etc.
-2                            an integer denoting the continuous numbering sequence for each sample
-3                                                  a character string denoting the penguin species
-4                              a character string denoting the region of Palmer LTER sampling grid
-5          a character string denoting the island near Palmer Station where samples were collected
-6                                       a character string denoting reproductive stage at sampling
-7                         a character string denoting the unique ID for each individual in dataset
-8   a character string denoting if the study nest observed with a full clutch (for example 2 eggs)
-9                                a date denoting the date study nest observed with 1 egg (sampled)
-10                 a number denoting the length of the dorsal ridge of a bird's bill (millimeters)
-11                  a number denoting the depth of the dorsal ridge of a bird's bill (millimeters)
-12                                    an integer denoting the length penguin flipper (millimeters)
-13                                               an integer denoting the penguin body mass (grams)
-14                                                a character string denoting the sex of an animal
-15                           a number denoting the measure of the ratio of stable isotopes 15N:14N
-16                           a number denoting the measure of the ratio of stable isotopes 13C:12C
-17                 a character string with text providing additional relevant information for data</code></pre>
+<pre><code>            variable
+1          studyName
+2      Sample Number
+3            Species
+4             Region
+5             Island
+6              Stage
+7      Individual ID
+8  Clutch Completion
+9           Date Egg
+10     Culmen Length
+11      Culmen Depth
+12    Flipper Length
+13         Body Mass
+14               Sex
+15        Delta 15 N
+16        Delta 13 C
+17          Comments
+                                                                                description
+1                       Sampling expedition from which data were collected, generated, etc.
+2                     an integer denoting the continuous numbering sequence for each sample
+3                                           a character string denoting the penguin species
+4                       a character string denoting the region of Palmer LTER sampling grid
+5   a character string denoting the island near Palmer Station where samples were collected
+6                                a character string denoting reproductive stage at sampling
+7                  a character string denoting the unique ID for each individual in dataset
+8   a character string denoting if the study nest observed with a full clutch, i.e., 2 eggs
+9                         a date denoting the date study nest observed with 1 egg (sampled)
+10          a number denoting the length of the dorsal ridge of a bird's bill (millimeters)
+11           a number denoting the depth of the dorsal ridge of a bird's bill (millimeters)
+12                             an integer denoting the length penguin flipper (millimeters)
+13                                        an integer denoting the penguin body mass (grams)
+14                                         a character string denoting the sex of an animal
+15                    a number denoting the measure of the ratio of stable isotopes 15N:14N
+16                    a number denoting the measure of the ratio of stable isotopes 13C:12C
+17          a character string with text providing additional relevant information for data</code></pre>
 </div>
 </div>
 </section>
@@ -213,8 +228,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="there-are-several-ways-of-looking-at-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="there-are-several-ways-of-looking-at-the-data">There are several ways of looking at the data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#take a look at the data</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#note that for functions that come from specific packages (instead of base R)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># I often specify both package and function like so</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># package::function() that's not required one could just call the function</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># specifying the package makes it clearer where the function "lives",</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># but it adds typing. You can do it either way.</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#take a look at the data</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 344
 Columns: 17
@@ -236,7 +257,8 @@ $ `Delta 15 N (o/oo)`   &lt;dbl&gt; NA, 8.94956, 8.36821, NA, 8.76651, 8.66496, 
 $ `Delta 13 C (o/oo)`   &lt;dbl&gt; NA, -24.69454, -25.33302, NA, -25.32426, -25.298…
 $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "Adult…</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#another way to summarize the data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  studyName         Sample Number      Species             Region         
  Length:344         Min.   :  1.00   Length:344         Length:344        
@@ -279,7 +301,8 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
                    
                    </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#yet another way to get an idea of the data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  studyName Sample Number                             Species Region    Island
 1   PAL0708             1 Adelie Penguin (Pygoscelis adeliae) Anvers Torgersen
@@ -310,7 +333,8 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 5           8.76651         -25.32426                           &lt;NA&gt;
 6           8.66496         -25.29805                           &lt;NA&gt;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#this is a nice way to look at data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
@@ -602,27 +626,16 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </tbody>
 </table>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>orig_names <span class="ot">&lt;-</span> <span class="fu">names</span>(rawdata)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>new_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"study"</span>, <span class="st">"sampleN"</span>, <span class="st">"species"</span>, <span class="st">"region"</span>, <span class="st">"island"</span>, <span class="st">"stage"</span>, <span class="st">"id"</span>, <span class="st">"clutch"</span>, <span class="st">"eggdate"</span>, <span class="st">"culmenL"</span>, <span class="st">"culmenD"</span>, <span class="st">"flipperL"</span>, <span class="st">"mass"</span>, <span class="st">"sex"</span>, <span class="st">"d15N"</span>, <span class="st">"d13C"</span>, <span class="st">"comments"</span> )</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(orig_names) <span class="ot">&lt;-</span> new_names   <span class="co"># label the original names vector with the new names</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                                                            <span class="co"># useful for plot axis labels</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>orig_names                                                  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                study               sampleN               species 
-          "studyName"       "Sample Number"             "Species" 
-               region                island                 stage 
-             "Region"              "Island"               "Stage" 
-                   id                clutch               eggdate 
-      "Individual ID"   "Clutch Completion"            "Date Egg" 
-              culmenL               culmenD              flipperL 
- "Culmen Length (mm)"   "Culmen Depth (mm)" "Flipper Length (mm)" 
-                 mass                   sex                  d15N 
-      "Body Mass (g)"                 "Sex"   "Delta 15 N (o/oo)" 
-                 d13C              comments 
-  "Delta 13 C (o/oo)"            "Comments" </code></pre>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#See all the data by just typing `rawdata` at the R console.</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Note that the names here have spaces and () which are usable, but </span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># force us to quote the character strings. You can either keep doing so </span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># rawdata$`Culmen Length (mm)` or rename to something more convenient.</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Personally I would probably shorten everything, but to keep it more</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># recognizable for this exercise, I will leave it. Itʻs up to you. </span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># names(rawdata) &lt;- c("study", "sampleN", "species", "region", "island", "stage", "id", ... )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<p>We also use short variable names (temporarily) in this script for convenience. We save the cleaned data with the original names, but save the short names at the end to reuse them later.</p>
 </section>
 </section>
 <section id="cleaning" class="level1">
@@ -632,29 +645,40 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <h3 class="anchored" data-anchor-id="species-names">Species names</h3>
 <p>First, we know that this is a dataset for three species of penguin, but we notice that there are 9 unique species.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspecting the data, we find some problems that need addressing:</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># There are 9 unique names, should be 3. </span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#check skimr or </span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(rawdata<span class="sc">$</span>species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspecting the data, we find some problems that need addressing:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  First, we know that this is a dataset for three species of penguin, </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  we notice that there are 9 unique species.</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#check skimr or </span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(rawdata<span class="sc">$</span>Species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>NULL</code></pre>
+<pre><code>[1] "Adelie Penguin (Pygoscelis adeliae)"      
+[2] "Adelie PengTin (Pygoscelis adeliae)"      
+[3] "Adelie Pengufn (Pygoscelis adeliae)"      
+[4] "Adelie PeOguin (Pygoscelis adeliae)"      
+[5] "AdeKie Penguin (Pygoscelis adeliae)"      
+[6] "AdelieMPenguin (Pygoscelis adeliae)"      
+[7] "Gentoo penguin (Pygoscelis papua)"        
+[8] "Ventoo penguin (Pygoscelis papua)"        
+[9] "Chinstrap penguin (Pygoscelis antarctica)"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Letʻs save rawdata as d1, and modify d1 so we can compare versions. </span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> rawdata</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(d1) <span class="ot">&lt;-</span> new_names   <span class="co"># rename the data with short names</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>ii <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"PengTin"</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species[ii] <span class="ot">&lt;-</span> <span class="st">"Adelie Penguin (Pygoscelis adeliae)"</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#Another way:</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"gTin"</span>, <span class="st">"guin"</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co"># look at partially fixed data again</span></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(d1<span class="sc">$</span>species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Notice that some of the species names have typos? </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Letʻs save rawdata as d1, and modify d1 so we can compare versions. </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> rawdata</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Use the techniques we learned in class to fix these errors. For example,</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># we can find the mispelled entry, and replace the whole thing:</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>ii <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"PengTin"</span>, d1<span class="sc">$</span>Species)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>Species[ii] <span class="ot">&lt;-</span> <span class="st">"Adelie Penguin (Pygoscelis adeliae)"</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#Another way:</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"gTin"</span>, <span class="st">"guin"</span>, d1<span class="sc">$</span>Species)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co"># look at partially fixed data again</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(d1<span class="sc">$</span>Species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Adelie Penguin (Pygoscelis adeliae)"      
 [2] "Adelie Pengufn (Pygoscelis adeliae)"      
@@ -668,48 +692,29 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </div>
 <p>Fix all of the errors.</p>
 <p>Also, letʻs shorten Species just keeping the three common names “Adelie”, “Gentoo”, and “Chinstrap” and delete the rest of the Species character string.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix all of the errors. </span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"gufn"</span>, <span class="st">"guin"</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"Oguin"</span>, <span class="st">"nguin"</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"Kie"</span>, <span class="st">"lie"</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"lieM"</span>, <span class="st">"lie "</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"Vent"</span>, <span class="st">"Gent"</span>, d1<span class="sc">$</span>species)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  Shorten species just keeping the three common names "Adelie", </span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  "Gentoo", and "Chinstrap" and delete the rest of the species character string. </span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  For this we have to set the argument fixed=T because () are special characters for grouping</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">" Penguin (Pygoscelis adeliae)"</span>,<span class="st">""</span>, d1<span class="sc">$</span>species, <span class="at">fixed=</span>T)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">" penguin (Pygoscelis papua)"</span>,<span class="st">""</span>, d1<span class="sc">$</span>species, <span class="at">fixed=</span>T)</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">" penguin (Pygoscelis antarctica)"</span>,<span class="st">""</span>, d1<span class="sc">$</span>species, <span class="at">fixed=</span>T)</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(d1<span class="sc">$</span>species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Adelie"    "Gentoo"    "Chinstrap"</code></pre>
-</div>
-</div>
+<p>NOTE: Check your work with each change. Debug as you go, never all at once. Make sure that the code you save in your script works without error.</p>
 </section>
 <section id="continuous-data" class="level3">
 <h3 class="anchored" data-anchor-id="continuous-data">Continuous data</h3>
 <p>There is an entry for <code>Culmen Length (mm)</code> which says “missing” instead of a number or NA. Should we delete this record (and all of the variables)? This “missing” entry also turned all culmen length entries into characters instead of numeric. That conversion to character also means that our summary function isn’t very meaningful.</p>
 <p>So let’s fix that first.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Change the Culmen Length entry "missing" to NA</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> d1<span class="sc">$</span>culmenL</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>cl[ cl <span class="sc">==</span> <span class="st">"missing"</span> ] <span class="ot">&lt;-</span> <span class="cn">NA</span>  <span class="co"># find cl=="missing and replace "missing" with NA</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(cl)  <span class="co"># coerce to numeric</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span>culmenL <span class="ot">&lt;-</span> cl</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># another way using dplyr from the tidyverse</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> d1 <span class="sc">%&gt;%</span> </span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            dplyr<span class="sc">::</span><span class="fu">mutate</span>( <span class="at">culmenL =</span> <span class="fu">replace</span>(culmenL, culmenL<span class="sc">==</span><span class="st">"missing"</span>, <span class="cn">NA</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            dplyr<span class="sc">::</span><span class="fu">mutate</span>( <span class="at">culmenL =</span> <span class="fu">as.numeric</span>(culmenL))</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># look at partially fixed data again</span></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> d1<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span> <span class="co"># OK so typing `Culmen Length (mm)` is really annoying. </span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                              <span class="co"># Letʻs make a temporary variable `cl` and save it </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                              <span class="co"># back to d1$`Culmen Length (mm)` when weʻre done. </span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>cl[ cl <span class="sc">==</span> <span class="st">"missing"</span> ] <span class="ot">&lt;-</span> <span class="cn">NA</span>  <span class="co"># find cl=="missing and replace "missing" with NA</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(cl)  <span class="co"># coerce to numeric</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>d1<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span> <span class="ot">&lt;-</span> cl</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># another way using dplyr from the tidyverse</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># d1 &lt;- rawdata %&gt;% dplyr::filter( `Culmen Length (mm)` != "missing" ) %&gt;% </span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">#             dplyr::mutate( `Culmen Length (mm)` = as.numeric(`Culmen Length (mm)`))</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co"># look at partially fixed data again</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
@@ -755,14 +760,14 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: character</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 19%">
+<col style="width: 23%">
 <col style="width: 13%">
-<col style="width: 19%">
+<col style="width: 18%">
 <col style="width: 5%">
 <col style="width: 5%">
-<col style="width: 8%">
-<col style="width: 12%">
-<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -778,7 +783,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">study</td>
+<td style="text-align: left;">studyName</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">7</td>
@@ -788,17 +793,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">species</td>
+<td style="text-align: left;">Species</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">9</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">41</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">region</td>
+<td style="text-align: left;">Region</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">6</td>
@@ -808,7 +813,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">island</td>
+<td style="text-align: left;">Island</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">5</td>
@@ -818,7 +823,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">stage</td>
+<td style="text-align: left;">Stage</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">18</td>
@@ -828,7 +833,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">id</td>
+<td style="text-align: left;">Individual ID</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">4</td>
@@ -838,7 +843,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">clutch</td>
+<td style="text-align: left;">Clutch Completion</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">2</td>
@@ -848,7 +853,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">eggdate</td>
+<td style="text-align: left;">Date Egg</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">10</td>
@@ -858,7 +863,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">sex</td>
+<td style="text-align: left;">Sex</td>
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: right;">4</td>
@@ -868,7 +873,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">comments</td>
+<td style="text-align: left;">Comments</td>
 <td style="text-align: right;">290</td>
 <td style="text-align: right;">0.16</td>
 <td style="text-align: right;">18</td>
@@ -882,17 +887,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: numeric</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 8%">
+<col style="width: 19%">
+<col style="width: 9%">
+<col style="width: 13%">
 <col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
 <col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -911,7 +916,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">sampleN</td>
+<td style="text-align: left;">Sample Number</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">63.15</td>
@@ -924,7 +929,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▇▇▆▅▃</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">culmenL</td>
+<td style="text-align: left;">Culmen Length (mm)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">47.60</td>
@@ -937,7 +942,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▇▁▁▁▁</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">culmenD</td>
+<td style="text-align: left;">Culmen Depth (mm)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">17.15</td>
@@ -950,7 +955,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▅▅▇▇▂</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">flipperL</td>
+<td style="text-align: left;">Flipper Length (mm)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">200.92</td>
@@ -963,7 +968,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▂▇▃▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">mass</td>
+<td style="text-align: left;">Body Mass (g)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">4159.78</td>
@@ -976,7 +981,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▁▁▇▇▃</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">d15N</td>
+<td style="text-align: left;">Delta 15 N (o/oo)</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">8.73</td>
@@ -989,7 +994,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▆▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">d13C</td>
+<td style="text-align: left;">Delta 13 C (o/oo)</td>
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">-25.69</td>
@@ -1004,42 +1009,46 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </tbody>
 </table>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d1<span class="sc">$</span>culmenL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d1<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata2-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># letʻs also do a bivariate plot with mass</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d1<span class="sc">$</span>mass, d1<span class="sc">$</span>culmenL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># letʻs also do a bivariate plot with mass</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d1<span class="sc">$</span><span class="st">`</span><span class="at">Body Mass (g)</span><span class="st">`</span>, d1<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata2-2.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d1<span class="sc">$</span>mass, d1<span class="sc">$</span>culmenL, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"culmenL"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/cleandata2-3.png" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Notice anything funny? </span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we see that there are three penguins with really really long culmens (300+mm) </span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  that could be typos. If we don't know, we might need to remove these penguins</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  But let's suppose that we somehow know that this is because of a misplaced decimal </span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  point (for example if we could verify with field records), and letʻs fix this:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Notice anything funny?</p>
 <p>Now we see that there are three penguins with really really long culmens (300+mm) that could be typos. If we don’t know, we might need to remove these penguins. But let’s suppose that we somehow know that this is because of a misplaced decimal point (for example if we could verify with field records), and letʻs fix this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  Three penguins have impossibly long culmens (300+mm) </span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  Assume they are misplaced decimals (for example if we could </span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  verify with field records), and letʻs fix this:</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d1 </span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>cl[ cl <span class="sc">&gt;</span> <span class="dv">300</span> ] </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d1 </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>cl[ cl <span class="sc">&gt;</span> <span class="dv">300</span> ] </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  NA 429 511  NA 457</code></pre>
 </div>
 </div>
-<p>Notice that NAʻs will match the condition <code>cl&gt;300</code>, NAs will match ANY condition. R does this to be conservative because it is unknown whether it matches or does not match. We donʻt want NAs, so letʻs exclude them with !is.na() where the ! is “not” or the opposite of is.na:</p>
+<p>Notice that NAʻs will match the condition <code>cl&gt;300</code>, because we donʻt really know, so R returns it to be conservative. We donʻt want NAs, so letʻs exclude them with !is.na() where the ! is “not” or the opposite of is.na. The logical &amp; which requires both conditions to be true (i.e., I want to be rich AND famous):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cl &gt; 300 are decimal place errors, correct by dividing by 10</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>cl[ <span class="sc">!</span><span class="fu">is.na</span>(cl) <span class="sc">&amp;</span> cl<span class="sc">&gt;</span><span class="dv">300</span> ] <span class="ot">&lt;-</span> cl[ <span class="sc">!</span><span class="fu">is.na</span>(cl) <span class="sc">&amp;</span> cl<span class="sc">&gt;</span><span class="dv">300</span> ]<span class="sc">/</span><span class="dv">10</span>   </span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span>culmenL <span class="ot">&lt;-</span> cl</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#culmen length values seem ok now</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>cl[ <span class="sc">!</span><span class="fu">is.na</span>(cl) <span class="sc">&amp;</span> cl<span class="sc">&gt;</span><span class="dv">300</span> ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 429 511 457</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now replace with the same divided by 10:</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>cl[ <span class="sc">!</span><span class="fu">is.na</span>(cl) <span class="sc">&amp;</span> cl<span class="sc">&gt;</span><span class="dv">300</span> ] <span class="ot">&lt;-</span> cl[ <span class="sc">!</span><span class="fu">is.na</span>(cl) <span class="sc">&amp;</span> cl<span class="sc">&gt;</span><span class="dv">300</span> ]<span class="sc">/</span><span class="dv">10</span>  </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>d2<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span> <span class="ot">&lt;-</span> cl</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#culmen length values seem ok now</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
@@ -1085,14 +1094,14 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: character</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 19%">
+<col style="width: 23%">
 <col style="width: 13%">
-<col style="width: 19%">
+<col style="width: 18%">
 <col style="width: 5%">
 <col style="width: 5%">
-<col style="width: 8%">
-<col style="width: 12%">
-<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1108,7 +1117,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">study</td>
+<td style="text-align: left;">studyName</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">7</td>
@@ -1118,17 +1127,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">species</td>
+<td style="text-align: left;">Species</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">9</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">41</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">region</td>
+<td style="text-align: left;">Region</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">6</td>
@@ -1138,7 +1147,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">island</td>
+<td style="text-align: left;">Island</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">5</td>
@@ -1148,7 +1157,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">stage</td>
+<td style="text-align: left;">Stage</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">18</td>
@@ -1158,7 +1167,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">id</td>
+<td style="text-align: left;">Individual ID</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">4</td>
@@ -1168,7 +1177,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">clutch</td>
+<td style="text-align: left;">Clutch Completion</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">2</td>
@@ -1178,7 +1187,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">eggdate</td>
+<td style="text-align: left;">Date Egg</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">10</td>
@@ -1188,7 +1197,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">sex</td>
+<td style="text-align: left;">Sex</td>
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: right;">4</td>
@@ -1198,7 +1207,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">comments</td>
+<td style="text-align: left;">Comments</td>
 <td style="text-align: right;">290</td>
 <td style="text-align: right;">0.16</td>
 <td style="text-align: right;">18</td>
@@ -1212,17 +1221,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: numeric</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 8%">
+<col style="width: 19%">
+<col style="width: 9%">
+<col style="width: 13%">
 <col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
 <col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1241,7 +1250,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">sampleN</td>
+<td style="text-align: left;">Sample Number</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">63.15</td>
@@ -1254,7 +1263,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▇▇▆▅▃</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">culmenL</td>
+<td style="text-align: left;">Culmen Length (mm)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">43.92</td>
@@ -1267,7 +1276,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▇▆▁</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">culmenD</td>
+<td style="text-align: left;">Culmen Depth (mm)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">17.15</td>
@@ -1280,7 +1289,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▅▅▇▇▂</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">flipperL</td>
+<td style="text-align: left;">Flipper Length (mm)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">200.92</td>
@@ -1293,7 +1302,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▂▇▃▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">mass</td>
+<td style="text-align: left;">Body Mass (g)</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0.99</td>
 <td style="text-align: right;">4159.78</td>
@@ -1306,7 +1315,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▁▁▇▇▃</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">d15N</td>
+<td style="text-align: left;">Delta 15 N (o/oo)</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">8.73</td>
@@ -1319,7 +1328,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▆▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">d13C</td>
+<td style="text-align: left;">Delta 13 C (o/oo)</td>
 <td style="text-align: right;">13</td>
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">-25.69</td>
@@ -1334,11 +1343,11 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </tbody>
 </table>
 </div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d2<span class="sc">$</span>culmenL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d2<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata3.2-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d2<span class="sc">$</span>mass, d2<span class="sc">$</span>culmenL, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"culmenL"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d2<span class="sc">$</span><span class="st">`</span><span class="at">Body Mass (g)</span><span class="st">`</span>, d2<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata3.2-2.png" class="img-fluid" width="672"></p>
 </div>
@@ -1349,25 +1358,24 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <h3 class="anchored" data-anchor-id="now-lets-look-at-body-mass.">Now let’s look at body mass.</h3>
 <p>There are penguins with body mass of &lt;100g when the others are over 3000. Perhaps these are new chicks? But they are supposed to be adults. Letʻs remove them.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d2<span class="sc">$</span>mass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d2<span class="sc">$</span><span class="st">`</span><span class="at">Body Mass (g)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata4.1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Mass is the main size variable, so we will remove the individuals with missing masses in order to be able to analyze the data.</p>
-<p>Note: Some analysis methods can deal with missing values, so it’s not always necessary to drop observations with missing data in the non-size variables. Here we will drop observations with missinging mass but leave in NAs in other variables.</p>
+<p>Mass is the main size variable, so we will probably need to remove the individuals with missing masses in order to be able to analyze the data.</p>
+<p>Note: Some analysis methods can deal with missing values, so it’s not always necessary. Or it may be fine to have it in some of the variables but probably not the size variable. This should be adjusted based on your planned analysis approach.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Some masses are impossibly small, delete these observations</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> d2</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>mm <span class="ot">&lt;-</span> d3<span class="sc">$</span>mass</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>mm[ mm <span class="sc">&lt;</span> <span class="dv">100</span> ] <span class="ot">&lt;-</span> <span class="cn">NA</span>       <span class="co"># replace tiny masses with NA</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>nas <span class="ot">&lt;-</span> <span class="fu">which</span>( <span class="fu">is.na</span>(mm) )  <span class="co"># find which rows have NA for mass</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> d3[<span class="sc">-</span>nas,]    <span class="co"># remove all rows with mass = NA</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> d2</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>mm <span class="ot">&lt;-</span> d3<span class="sc">$</span><span class="st">`</span><span class="at">Body Mass (g)</span><span class="st">`</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>mm[ mm <span class="sc">&lt;</span> <span class="dv">100</span> ] <span class="ot">&lt;-</span> <span class="cn">NA</span>       <span class="co"># replace tiny masses with NA</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>nas <span class="ot">&lt;-</span> <span class="fu">which</span>( <span class="fu">is.na</span>(mm) )  <span class="co"># find which rows have NA for mass</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> d3[ <span class="sc">-</span>nas, ]   <span class="co"># drop the penguins (rows) with missing masses</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
@@ -1413,14 +1421,14 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: character</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 19%">
+<col style="width: 23%">
 <col style="width: 13%">
-<col style="width: 19%">
+<col style="width: 18%">
 <col style="width: 5%">
 <col style="width: 5%">
-<col style="width: 8%">
-<col style="width: 12%">
-<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1436,7 +1444,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">study</td>
+<td style="text-align: left;">studyName</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">7</td>
@@ -1446,17 +1454,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">species</td>
+<td style="text-align: left;">Species</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">9</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">41</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">region</td>
+<td style="text-align: left;">Region</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">6</td>
@@ -1466,7 +1474,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">island</td>
+<td style="text-align: left;">Island</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">5</td>
@@ -1476,7 +1484,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">stage</td>
+<td style="text-align: left;">Stage</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">18</td>
@@ -1486,7 +1494,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">id</td>
+<td style="text-align: left;">Individual ID</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">4</td>
@@ -1496,7 +1504,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">clutch</td>
+<td style="text-align: left;">Clutch Completion</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">2</td>
@@ -1506,7 +1514,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">eggdate</td>
+<td style="text-align: left;">Date Egg</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">10</td>
@@ -1516,7 +1524,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">sex</td>
+<td style="text-align: left;">Sex</td>
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: right;">4</td>
@@ -1526,7 +1534,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">comments</td>
+<td style="text-align: left;">Comments</td>
 <td style="text-align: right;">287</td>
 <td style="text-align: right;">0.15</td>
 <td style="text-align: right;">25</td>
@@ -1540,17 +1548,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: numeric</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 8%">
+<col style="width: 19%">
+<col style="width: 9%">
+<col style="width: 13%">
 <col style="width: 7%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
 <col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1569,7 +1577,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">sampleN</td>
+<td style="text-align: left;">Sample Number</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">63.13</td>
@@ -1582,7 +1590,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▇▇▆▅▃</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">culmenL</td>
+<td style="text-align: left;">Culmen Length (mm)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">43.90</td>
@@ -1595,7 +1603,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▅▇▇▆▁</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">culmenD</td>
+<td style="text-align: left;">Culmen Depth (mm)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">17.17</td>
@@ -1608,7 +1616,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▅▅▇▇▂</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">flipperL</td>
+<td style="text-align: left;">Flipper Length (mm)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">200.79</td>
@@ -1621,7 +1629,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▂▇▃▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">mass</td>
+<td style="text-align: left;">Body Mass (g)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">4196.17</td>
@@ -1634,7 +1642,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▅▃▂</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">d15N</td>
+<td style="text-align: left;">Delta 15 N (o/oo)</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">8.74</td>
@@ -1647,7 +1655,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▆▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">d13C</td>
+<td style="text-align: left;">Delta 13 C (o/oo)</td>
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: right;">-25.68</td>
@@ -1662,26 +1670,25 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </tbody>
 </table>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d3<span class="sc">$</span>mass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d3<span class="sc">$</span><span class="st">`</span><span class="at">Body Mass (g)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata4.2-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span>mass, d3<span class="sc">$</span>culmenL, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"culmenL"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span><span class="st">`</span><span class="at">Body Mass (g)</span><span class="st">`</span>, d3<span class="sc">$</span><span class="st">`</span><span class="at">Culmen Length (mm)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="processingfile_v2_files/figure-html/cleandata4.2-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>These data now look cleaned of impossible values.</p>
+<p>Does it look better?</p>
 </section>
 <section id="factors" class="level3">
 <h3 class="anchored" data-anchor-id="factors">Factors</h3>
 <p>We also want to have Species, Sex, and Island coded as a categorical/factor variable:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Species, Sex, and Island coded as a categorical/factor variable</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>species)</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>sex)</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>island <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>island)  </span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>Species)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>Sex <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>Sex)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>Island <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>Island)  </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Data summary</caption>
@@ -1731,14 +1738,14 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: character</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 19%">
+<col style="width: 23%">
 <col style="width: 13%">
-<col style="width: 19%">
+<col style="width: 18%">
 <col style="width: 5%">
 <col style="width: 5%">
-<col style="width: 8%">
-<col style="width: 12%">
-<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1754,7 +1761,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">study</td>
+<td style="text-align: left;">studyName</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">7</td>
@@ -1764,7 +1771,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">region</td>
+<td style="text-align: left;">Region</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">6</td>
@@ -1774,7 +1781,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">stage</td>
+<td style="text-align: left;">Stage</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">18</td>
@@ -1784,7 +1791,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">id</td>
+<td style="text-align: left;">Individual ID</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">4</td>
@@ -1794,7 +1801,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">clutch</td>
+<td style="text-align: left;">Clutch Completion</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">2</td>
@@ -1804,7 +1811,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">eggdate</td>
+<td style="text-align: left;">Date Egg</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">10</td>
@@ -1814,7 +1821,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">comments</td>
+<td style="text-align: left;">Comments</td>
 <td style="text-align: right;">287</td>
 <td style="text-align: right;">0.15</td>
 <td style="text-align: right;">25</td>
@@ -1828,12 +1835,12 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: factor</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 12%">
-<col style="width: 16%">
-<col style="width: 9%">
+<col style="width: 15%">
 <col style="width: 10%">
-<col style="width: 33%">
+<col style="width: 15%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 39%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1847,15 +1854,15 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">species</td>
+<td style="text-align: left;">Species</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">Ade: 151, Gen: 120, Chi: 68</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">Ade: 147, Gen: 119, Chi: 68, Ade: 1</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">island</td>
+<td style="text-align: left;">Island</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: left;">FALSE</td>
@@ -1863,7 +1870,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">Bis: 164, Dre: 124, Tor: 51</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">sex</td>
+<td style="text-align: left;">Sex</td>
 <td style="text-align: right;">9</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: left;">FALSE</td>
@@ -1875,17 +1882,17 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <p><strong>Variable type: numeric</strong></p>
 <table class="table table-sm table-striped">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 8%">
+<col style="width: 19%">
+<col style="width: 9%">
+<col style="width: 13%">
 <col style="width: 7%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
 <col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1904,7 +1911,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">sampleN</td>
+<td style="text-align: left;">Sample Number</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">63.13</td>
@@ -1917,7 +1924,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▇▇▆▅▃</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">culmenL</td>
+<td style="text-align: left;">Culmen Length (mm)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">43.90</td>
@@ -1930,7 +1937,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▅▇▇▆▁</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">culmenD</td>
+<td style="text-align: left;">Culmen Depth (mm)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">17.17</td>
@@ -1943,7 +1950,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▅▅▇▇▂</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">flipperL</td>
+<td style="text-align: left;">Flipper Length (mm)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">200.79</td>
@@ -1956,7 +1963,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▂▇▃▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">mass</td>
+<td style="text-align: left;">Body Mass (g)</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1.00</td>
 <td style="text-align: right;">4196.17</td>
@@ -1969,7 +1976,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▅▃▂</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">d15N</td>
+<td style="text-align: left;">Delta 15 N (o/oo)</td>
 <td style="text-align: right;">12</td>
 <td style="text-align: right;">0.96</td>
 <td style="text-align: right;">8.74</td>
@@ -1982,7 +1989,7 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 <td style="text-align: left;">▃▇▆▅▂</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">d13C</td>
+<td style="text-align: left;">Delta 13 C (o/oo)</td>
 <td style="text-align: right;">11</td>
 <td style="text-align: right;">0.97</td>
 <td style="text-align: right;">-25.68</td>
@@ -2002,186 +2009,52 @@ $ Comments              &lt;chr&gt; "Not enough blood for isotopes.", NA, NA, "A
 </section>
 <section id="bivariate-plots" class="level1">
 <h1>Bivariate Plots</h1>
-<p>We look through all of the data, variable by variable, or by pairs of variables to check on the distributions of the data and for any potential errors in the data.</p>
-<p>We make bivariate plots for each continous variable to ensure there are no further errors. It is a good practice to check on the distribution of the data as well.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># bivariate plots of each numeric variable with mass to ensure there are no further</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># errors.:</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span>mass, d3<span class="sc">$</span>culmenL, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"culmenL"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/bivariateplots-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span>mass, d3<span class="sc">$</span>culmenD, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"culmenD"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/bivariateplots-2.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span>mass, d3<span class="sc">$</span>flipperL, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"flipperL"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/bivariateplots-3.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span>mass, d3<span class="sc">$</span>d15N, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"d15N"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/bivariateplots-4.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d3<span class="sc">$</span>mass, d3<span class="sc">$</span>d13C, <span class="at">xlab=</span>orig_names[<span class="st">"mass"</span>], <span class="at">ylab=</span>orig_names[<span class="st">"d13C"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/bivariateplots-5.png" class="img-fluid" width="672"></p>
-</div>
-</div>
+<p>Make bivariate plots for any remaining continous data to ensure there are no further errors. It is a good check on the distribution of the data as well.</p>
+<p>Make histograms or densities of at least mass by discrete category, to check for any potential category errors, extra categories, etc.</p>
+<p>You should look through all of the data, variable by variable, or by pairs of variables.</p>
 </section>
-<section id="histograms-by-species" class="level1">
-<h1>Histograms by Species</h1>
-<p>We make histograms or densities of mass by each species, to check for any potential category errors, extra categories, etc.</p>
+<section id="finalize-your-cleaned-dataset." class="level1">
+<h1>Finalize your cleaned dataset.</h1>
+<p>Drop any variables (columns) that you wonʻt analyze. If you have extra levels after dropping some values, you may want to relevel your factors (this may or may not happen).</p>
+<p>To specify new levels or orders of levels:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We will not subset by region, stage as they have only 1 value</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co"># nor eggdate and sampleN which have many values</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: ggplot2</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(d3<span class="sc">$</span>mass)   <span class="co"># a single histogram of mass</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span>   <span class="co"># mass histogram by species</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_histogram</span>( <span class="fu">aes</span>(<span class="at">fill=</span>species), <span class="at">alpha=</span>.<span class="dv">5</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-2.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span>    <span class="co"># mass density by species</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_density</span>( <span class="fu">aes</span>(<span class="at">fill=</span>species), <span class="at">alpha=</span>.<span class="dv">5</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-3.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span>    <span class="co"># by island</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>( <span class="fu">aes</span>(<span class="at">fill=</span>island), <span class="at">alpha=</span>.<span class="dv">5</span>)   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-4.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>( <span class="fu">aes</span>(<span class="at">fill=</span>island), <span class="at">alpha=</span>.<span class="dv">5</span>)   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-5.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>( <span class="fu">aes</span>(<span class="at">fill=</span>clutch), <span class="at">alpha=</span>.<span class="dv">5</span>)   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-6.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>( <span class="fu">aes</span>(<span class="at">fill=</span>clutch), <span class="at">alpha=</span>.<span class="dv">5</span>)   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-7.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>( <span class="fu">aes</span>(<span class="at">fill=</span>sex), <span class="at">alpha=</span>.<span class="dv">5</span>)   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-8.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="sc">%&gt;%</span> </span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x=</span>mass)) <span class="sc">+</span> </span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>( <span class="fu">aes</span>(<span class="at">fill=</span>sex), <span class="at">alpha=</span>.<span class="dv">5</span>)   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="processingfile_v2_files/figure-html/histograms-9.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="finalize-the-cleaned-dataset." class="level1">
-<h1>Finalize the cleaned dataset.</h1>
-<p>Drop any variables (columns) that we wonʻt analyze. We also make a new data dictionary to save with the cleaned data.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Finalize the cleaned dataset. </span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="co"># save these variables</span></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"species"</span>, <span class="st">"island"</span>, <span class="st">"clutch"</span>, <span class="st">"eggdate"</span>, <span class="st">"culmenL"</span>, <span class="st">"culmenD"</span>, <span class="st">"flipperL"</span>, <span class="st">"mass"</span>, <span class="st">"sex"</span>, <span class="st">"d15N"</span>, <span class="st">"d13C"</span>)</span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>d4 <span class="ot">&lt;-</span> d3[vars]   <span class="co"># save only the variables in vars</span></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(d4) <span class="ot">&lt;-</span> orig_names[vars]  <span class="co"># revert to original names</span></span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(orig_names[vars])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                   id               species                island 
-      "Individual ID"             "Species"              "Island" 
-               clutch               eggdate               culmenL 
-  "Clutch Completion"            "Date Egg"  "Culmen Length (mm)" 
-              culmenD              flipperL                  mass 
-  "Culmen Depth (mm)" "Flipper Length (mm)"       "Body Mass (g)" 
-                  sex                  d15N                  d13C 
-                "Sex"   "Delta 15 N (o/oo)"   "Delta 13 C (o/oo)" </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> dictionary[dictionary<span class="sc">$</span>variable <span class="sc">%in%</span> orig_names[vars],]  <span class="co"># drop unused variables</span></span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="co"># another way to drop unused rows: </span></span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> dictionary <span class="sc">%&gt;%</span> <span class="fu">filter</span>( variable <span class="sc">%in%</span> orig_names[vars] )  <span class="co"># dplyr</span></span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(dictionary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>              variable
-1              Species
-2               Island
-3        Individual ID
-4    Clutch Completion
-5             Date Egg
-6   Culmen Length (mm)
-7    Culmen Depth (mm)
-8  Flipper Length (mm)
-9        Body Mass (g)
-10                 Sex
-11   Delta 15 N (o/oo)
-12   Delta 13 C (o/oo)
-                                                                                       description
-1                                                  a character string denoting the penguin species
-2          a character string denoting the island near Palmer Station where samples were collected
-3                         a character string denoting the unique ID for each individual in dataset
-4   a character string denoting if the study nest observed with a full clutch (for example 2 eggs)
-5                                a date denoting the date study nest observed with 1 egg (sampled)
-6                  a number denoting the length of the dorsal ridge of a bird's bill (millimeters)
-7                   a number denoting the depth of the dorsal ridge of a bird's bill (millimeters)
-8                                     an integer denoting the length penguin flipper (millimeters)
-9                                                an integer denoting the penguin body mass (grams)
-10                                                a character string denoting the sex of an animal
-11                           a number denoting the measure of the ratio of stable isotopes 15N:14N
-12                           a number denoting the measure of the ratio of stable isotopes 13C:12C</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Finalize your cleaned dataset. Drop any variables (columns) from the dataframe </span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># that you wonʻt analyze. If you have extra levels after dropping some values, </span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># you may want to relevel your factors (this may or may not happen). </span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co"># To specify new levels or orders of levels:</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># new_factor &lt;- factor(vec_extra_levels, levels=c("level1", "level2", ... ))</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># to drop empty levels:</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co"># new_factor &lt;- droplevels(vec_extra_levels)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="save-data" class="level1">
 <h1>Save data</h1>
-<p>All done, data is clean now. Finally, we save the clean data as an RDS file, as well as a copy as .csv for archival puproses.</p>
+<p>All done, data is clean now. Let’s assign at the end to some final variable makes it easier to add steps above</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>processeddata <span class="ot">&lt;-</span> d4      <span class="co"># clean data</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>save_path <span class="ot">&lt;-</span> <span class="st">"../../Data/Processed_data/"</span>   <span class="co"># path where clean data is saved</span></span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>save_data_rds <span class="ot">&lt;-</span> <span class="fu">paste</span>( save_path, <span class="st">"processeddata.rds"</span>, <span class="at">sep=</span><span class="st">""</span>)  <span class="co"># clean data RDS format</span></span>
-<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(processeddata, <span class="at">file =</span> save_data_rds)</span>
-<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>save_data_csv <span class="ot">&lt;-</span> <span class="fu">paste</span>( save_path, <span class="st">"processeddata.csv"</span>, <span class="at">sep=</span><span class="st">""</span>)  <span class="co"># clean data .csv</span></span>
-<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(processeddata, <span class="at">file =</span> save_data_csv, <span class="at">row.names=</span><span class="cn">FALSE</span>)</span>
-<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>save_dictionary_csv <span class="ot">&lt;-</span> <span class="fu">paste</span>( save_path, <span class="st">"dictionary.csv"</span>, <span class="at">sep=</span><span class="st">""</span>)  <span class="co"># clean data dictionary .csv</span></span>
-<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(dictionary, <span class="at">file =</span> save_dictionary_csv, <span class="at">row.names=</span><span class="cn">FALSE</span>)</span>
-<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(orig_names[vars], <span class="fu">paste</span>( save_path, <span class="st">"orig_names.rds"</span>, <span class="at">sep=</span><span class="st">""</span>))  <span class="co"># original names and short names as values</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>processeddata <span class="ot">&lt;-</span> d3      <span class="co"># change if you did more steps</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># location to save file</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>save_data_location <span class="ot">&lt;-</span> <span class="st">"../../Data/Processed_data/processeddata.rds"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(processeddata, <span class="at">file =</span> save_data_location)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>save_data_location_csv <span class="ot">&lt;-</span> <span class="st">"../../Data/Processed_data/processeddata.csv"</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(processeddata, <span class="at">file =</span> save_data_location_csv, <span class="at">row.names=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Finally, we save the clean data as RDS file. I suggest you save your processed and cleaned data as RDS or RDA/Rdata files, as well as a copy as .csv</p>
+<p>RDS/Rdata preserves coding like factors, characters, numeric, etc. If you save as CSV, that information would get lost. However, CSV is better for sharing with others since it’s plain text. If you do CSV, you might want to write down somewhere what each variable is (i.e.&nbsp;a data dictionary).</p>
+</section>
+<section id="notes" class="level1">
+<h1>Notes</h1>
+<ul>
+<li><p>Anything you don’t want loaded into the Quarto file but keep in the R file, just give it its own label and then just leave that label out of the Quarto file. For example, you may try excluding some of the excessive comments.</p></li>
+<li><p>Dealing with NA or “bad” data: Removing anyone who had “faulty” or missing data is one approach, but it’s often not the best. Based on your question and your analysis approach, you might want to do cleaning differently (e.g.&nbsp;keep individuals with some missing information)</p></li>
+<li><p>Saving data as RDS: I suggest you save your processed and cleaned data as RDS or RDA/Rdata files. This preserves coding like factors, characters, numeric, etc. If you save as CSV, that information would get lost. However, CSV is better for sharing with others since it’s plain text.</p></li>
+<li><p>If you do CSV, you must to write down somewhere what each variable is (i.e.&nbsp;in a data dictionary).</p></li>
+<li><p>See here for some suggestions on how to store your processed data: <a href="http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata" class="uri">http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata</a></p></li>
+</ul>
 </section>
 
 </main>
