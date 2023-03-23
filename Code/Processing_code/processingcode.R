@@ -129,8 +129,9 @@ d1$`Culmen Length (mm)` <- cl
 
 # another way using dplyr from the tidyverse
 
-# d1 <- rawdata %>% dplyr::filter( `Culmen Length (mm)` != "missing" ) %>% 
-#             dplyr::mutate( `Culmen Length (mm)` = as.numeric(`Culmen Length (mm)`))
+# d1 <- d1 %>% 
+#			dplyr::mutate( culmenL = replace(culmenL, culmenL=="missing", NA)) %>% 
+#			dplyr::mutate( culmenL = as.numeric(culmenL))
 
 
 # look at partially fixed data again
@@ -250,10 +251,10 @@ processeddata <- d3      # change if you did more steps
 
 # location to save file
 
-save_data_location <- "../../Data/Processed_data/processeddata.rds"
+save_data_location <- "../../Data/Processed_data/penguins.rds"
 saveRDS(processeddata, file = save_data_location)
 
-save_data_location_csv <- "../../Data/Processed_data/processeddata.csv"
+save_data_location_csv <- "../../Data/Processed_data/penguins.csv"
 write.csv(processeddata, file = save_data_location_csv, row.names=FALSE)
 
 

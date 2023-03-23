@@ -5,6 +5,12 @@ A template file and folder structure for a data analysis project/paper done with
 ![Data science pipeline](https://github.com/mbutler808/rclass/blob/main/images/dspipeline.png)
 [Figure: The Data Science Pipeline from RD Peng](https://rdpeng.github.io/Biostat776/lecture-the-data-science-pipeline.html)
 
+# Projects
+
+1. For the first project, we are focusing on data cleaning, so we only have Data and Code folders.
+2. For the second project, we are analyzing the cleaned data, so have Data, Code, Results, and Products folders
+3. For the third project, please analyze your own data with data cleaning, analysis, and report preparation. 
+
 # History
 
 2023-02-16 First release with Data and Code folders with materials for data cleaning and initial exploration.
@@ -45,9 +51,6 @@ Please see the `README.md` files in each folder for more details.
 * The `Products` folder contains an example `bibtex` and CSL style files for references. Those files are used by the example manuscript and slides.
 * The  `Manuscript` folder contains a template for a report written as Quarto file. There is also a sub-folder containing an example template for a supplementary material file as is common in scientific articles these days.
 * The `slides` folder contains a basic example of slides made with Quarto. 
-
-**For the first project, we only have Data and Code folders.**
-The rest will come soon. 
 
 # Getting started
 
