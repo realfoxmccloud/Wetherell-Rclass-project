@@ -1,3 +1,7 @@
+# My Class Project
+
+This is Korey's class project repository.
+
 # Overview
 
 A template file and folder structure for a data analysis project/paper done with R/Quarto/Github. The structure promotes a data science pipeline for reproducibility in research. 
