@@ -2,7 +2,9 @@
 title: "An example draft analysis script"
 author: "Marguerite Butler"
 date: "03/21/2023"
-output: html_document
+format: html
+execute:
+  echo: true
 ---
 
   
@@ -118,5 +120,42 @@ Letʻs plot both factors together to see whatʻs going on.
 # Notes
 
 For your own explorations, tables and figures can be "quick and dirty". As long as you can see what's going on, there is no need to polish them. That's in contrast to figures you'll produce for your final products (paper, report, presentation, website, etc.). Those should look as nice, polished and easy to understand as possible.
+
+### First Question from Korey
+
+## Does Island Location Influence Penguin Size?
+
+**Hypothesis:** Penguins on different islands will have different body masses due to environmental factors.
+
+**Analysis Approach:** Use ANOVA to compare body mass across islands.
+
+
+```{r setup, echo=TRUE}
+# Load necessary libraries
+library(ggplot2)
+```
+
+```{r plot_body_mass_island, echo=TRUE, eval=TRUE, fig.width=7, fig.height=5}
+# Ensure there are no spaces in column names
+colnames(dat) <- gsub(" ", "_", colnames(dat))
+
+# Verify column names after cleaning
+print("Cleaned Column Names:")
+print(colnames(dat))
+
+# Check that Body_Mass_g exists and plot
+if ("Body_Mass_(g)" %in% colnames(dat)) { 
+    ggplot(dat, aes(x = Island, y = `Body_Mass_(g)`, fill = Island)) + 
+        geom_boxplot() + 
+        theme_minimal() + 
+        labs(title = "Comparison of Body Mass by Island", 
+             x = "Island", 
+             y = "Body_Mass_g")
+} else {
+    print("Error: 'Body_Mass_g' column is not found!")
+}
+```
+
+
 
 
