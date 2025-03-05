@@ -1,0 +1,107 @@
+---
+title: "Cleaning and Analyzing the Penguins Dataset"
+author: "Korey W"
+format: html
+editor: visual
+---
+
+## **Introduction**
+This document processes the `penguins_raw_dirty.csv` dataset.  
+It first **runs an external R script** to clean the data, then performs basic **data analysis and visualization**.
+
+---
+
+## **Step 1: Run the Cleaning Script**
+```{r}
+source("clean_penguins.R")
+```
+This **runs `clean_penguins.R`**, which:  
+- Cleans the dataset  
+- Saves it as `penguins_cleaned.csv` in `Processed_data/`  
+
+---
+
+## **Step 2: Load the Cleaned Data**
+```{r}
+# Load necessary libraries
+library(tidyverse)
+
+# Load cleaned data
+cleaned_data <- read_csv("/Users/koreywetherell/Documents/git/Wetherell_Project-template/Data/Processed_data/penguins_cleaned.csv")
+
+# Preview the first few rows
+head(cleaned_data)
+
+# Check actual column names
+colnames(cleaned_data)
+
+# Rename the columns correctly based on colnames output
+cleaned_data <- cleaned_data %>%
+  rename(
+    Flipper_Length_mm = Flipper_Length_mm_,  
+    Body_Mass_g = Body_Mass_g_ 
+)
+```
+This **loads the cleaned dataset** and **renames columns**.
+
+---
+
+## **Step 3: Data Summary**
+```{r}
+# Summary of all numeric columns
+summary(cleaned_data)
+
+# Check unique values for categorical variables
+unique(cleaned_data$Species)
+unique(cleaned_data$Island)
+unique(cleaned_data$Sex)
+```
+This **shows basic statistics and checks for typos in categories**.
+
+---
+
+## **Step 4: Data Visualization**
+
+### **Species Distribution**
+```{r}
+cleaned_data %>%
+  count(Species) %>%
+  ggplot(aes(x = Species, y = n, fill = Species)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Count of Penguins by Species", y = "Count", x = "Species")
+```
+This **creates a bar chart** showing how many of each species are in the dataset.
+
+---
+
+### **Body Mass vs. Flipper Length**
+```{r}
+ggplot(cleaned_data, aes(x = Flipper_Length_mm, y = Body_Mass_g, color = Species)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Penguin Body Mass vs. Flipper Length",
+       x = "Flipper Length (mm)", y = "Body Mass (g)")
+```
+This **creates a scatter plot** comparing body mass and flipper length.
+
+---
+
+## **Conclusion**
+This document:  
+**Cleans the dataset** using `clean_penguins.R`  
+**Loads the cleaned dataset**  
+**Performs basic data summaries**  
+**Visualizes key relationships**  
+
+**Now the dataset is ready for further analysis!**
+
+---
+
+## **How to Run This**
+Once you’ve saved this file as `clean_penguins_sourced.qmd`, run **this single command in Terminal**:
+```sh
+quarto render clean_penguins_sourced.qmd
+```
+This **runs everything**—you don’t need to switch between files anymore.  
+The final output will be an **HTML report** in the same folder.
