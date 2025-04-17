@@ -29,29 +29,33 @@ addpath <- function( filename, path=data_path ) {
 dat <- readRDS( addpath("penguins.rds", data_path) )
 
 
-## ---- summarize ----
+# ---- summarize ----
 # create summary table of the data using skimr to use in paper
 # variables, sample size, mean, standard error
 
-sk <- skimr::skim(dat)  # save skim object
-sk <- as.data.frame(sk) # save as data.frame
-head(sk)  # see the variable names
+library(skimr)
 
-nrows <- dim(dat)[1] # total number of rows
-sk$N <- nrows - sk$n_missing  # sample size of each variable
+sk <- skim(dat)               # save skim object
+sk <- as.data.frame(sk)       # convert to data frame
+head(sk)                      # preview
 
-## ---- summary.table ----
-# select only the variable, N, mean, sd, and category counts
+# Calculate sample size
+nrows <- nrow(dat)
+sk$N <- nrows - sk$n_missing
 
-sk.table <- sk[c("skim_variable", "N", "numeric.mean", "numeric.sd", "factor.top_counts")]
-names(sk.table) <- c("Variable", "N", "Mean", "SE", "Counts") # rename SD as SE
-sk.table$SE <- sk.table$SE/sqrt(sk.table$N) # calculate SE
+# ---- summary.table ----
+# Use the correct column names based on skimr structure
 
+sk.table <- sk[, c("skim_variable", "N", "numeric.mean", "numeric.sd")]
+names(sk.table) <- c("Variable", "N", "Mean", "SD")
+sk.table$SE <- sk.table$SD / sqrt(sk.table$N)  # Add standard error
+
+# Format for display
 options(knitr.kable.NA = "")
 knitr::kable(sk.table, digits=2)
 
-
-# save summary table
+# Save summary table
+saveRDS(sk.table, file = file.path(results_path, "summary_table.rds"))
 saveRDS(sk.table, file = addpath("summary_table.rds", results_path))
 
 

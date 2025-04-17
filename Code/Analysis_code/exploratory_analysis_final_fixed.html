@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Marguerite Butler">
-<meta name="dcterms.date" content="2023-03-21">
+<meta name="author" content="Korey Wetherell">
+<meta name="dcterms.date" content="2025-04-17">
 
-<title>An example draft analysis script</title>
+<title>Exploratory Analysis - Korey Wetherell</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -59,16 +59,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="exploratory_analysis_files/libs/clipboard/clipboard.min.js"></script>
-<script src="exploratory_analysis_files/libs/quarto-html/quarto.js"></script>
-<script src="exploratory_analysis_files/libs/quarto-html/popper.min.js"></script>
-<script src="exploratory_analysis_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="exploratory_analysis_files/libs/quarto-html/anchor.min.js"></script>
-<link href="exploratory_analysis_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="exploratory_analysis_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="exploratory_analysis_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="exploratory_analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="exploratory_analysis_files/libs/bootstrap/bootstrap-973236bd072d72a04ee9cd82dcc9cb29.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="exploratory_analysis_final_fixed_files/libs/clipboard/clipboard.min.js"></script>
+<script src="exploratory_analysis_final_fixed_files/libs/quarto-html/quarto.js"></script>
+<script src="exploratory_analysis_final_fixed_files/libs/quarto-html/popper.min.js"></script>
+<script src="exploratory_analysis_final_fixed_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="exploratory_analysis_final_fixed_files/libs/quarto-html/anchor.min.js"></script>
+<link href="exploratory_analysis_final_fixed_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="exploratory_analysis_final_fixed_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="exploratory_analysis_final_fixed_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="exploratory_analysis_final_fixed_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="exploratory_analysis_final_fixed_files/libs/bootstrap/bootstrap-973236bd072d72a04ee9cd82dcc9cb29.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -81,7 +81,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">An example draft analysis script</h1>
+<h1 class="title">Exploratory Analysis - Korey Wetherell</h1>
 </div>
 
 
@@ -91,14 +91,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Marguerite Butler </p>
+             <p>Korey Wetherell </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 21, 2023</p>
+      <p class="date">April 17, 2025</p>
     </div>
   </div>
   
@@ -110,21 +110,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This Quarto file loads the cleaned Palmer Penguins data and does some initial analysis. I find this step very helpful for seeing what results you have to work with for your talk or paper/final report.</p>
-<p>Some of what is written below is for you. I would like you to modify this quarto file to produce a document customized for your analysis and written to explain your thinking in your data analysis so feel free to modify as much as you wish.</p>
-<p>It is worth taking a minute to reflect on where we are in the data analysis workflow. The purpose of the previous processing document was to document data cleaning and processing in preparation for analysis. You saw that as part of the cleaning and processing step, we already had to explore the data somewhat to understand how to clean it. In general, as you explore, you find more things that need cleaning. As you clean, you find more to explore.</p>
-<section id="the-need-to-document-your-workflow" class="level1">
-<h1>The need to document your workflow</h1>
-<p>Although we broke our workflow in this project into cleaning and analysis steps, depending on your project, it may be more logical to divide the scripts in other ways. The organization should naturally reflect the workflow.</p>
-<p>In rather clean datasets at times it might make more sense to combine the cleaning and exploring code parts into a single R or Quarto file. <em>But if you do have real errors to fix, you will want to carefully document cleaning steps</em>, and probably not redo the cleaning each time you want to get a bit further on your data exploration and analysis. Itʻs a lot of baggage to carry around and also errors might creep in if you are keeping code in your script that you are not actively working on.</p>
-<p>When there are natural breaks in the workflow (i.e., when you close the door on cleaning or on a first analysis), it can be a good idea to have start a new script because once you clean your data, you will have a new starting point for all of your downstream analyses (and not look back at the really raw data, unless you want to change your mind about some of the cleaning - thus the need for keeping an original raw data file and documenting all the steps).</p>
-<p>This can also come up when you have a multi-stage analysis. In very complex analyses, it can make a lot of sense to have separate scripts for major analyses or workflow steps. As always, use your jugement, and be intentional about your organization. Clean organization = clear thinking.</p>
-</section>
-<section id="analysis" class="level1">
-<h1>Analysis</h1>
-<p>If you did a good job in the previous step, you should have a pretty good idea of the structure of the data.</p>
-<p>For this part of the project, develop three questions and use your R skills to answer them. Begin by producing a summary table of the data that could be included in a future paper. You should produce plots or tables and/or statistics or model fits to address your questions.</p>
-</section>
+<p>This Quarto file documents my workflow for conducting an exploratory analysis of the Palmer Penguins dataset as part of our course assignment, and this first part pulls from the original instructions provided in ZOOL710. While the structure of this document follows the class guidelines, I’ve adjusted the language to reflect the steps I took and the rationale behind each part of the process.</p>
+<p>I’ve chosen to keep the procedural guidance visible so that others reviewing this file — either for replication or instructional purposes — can understand how each stage connects to the overall project. This includes loading the cleaned data, generating summary statistics, and producing visualizations to better understand variable distributions and potential relationships.</p>
+<p>In short, this is not just a script — it’s a narrated walkthrough of how I approached and implemented an exploratory data analysis workflow using tools we’ve discussed in class, with the intention of grounding my final analysis in both clear documentation and replicability.</p>
 <section id="setup" class="level1">
 <h1>Setup</h1>
 <p>This needs to run to load the R script so we can include the code chunks below.</p>
@@ -166,9 +154,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create summary table of the data using skimr to use in paper</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># variables, sample size, mean, standard error</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>sk <span class="ot">&lt;-</span> skimr<span class="sc">::</span><span class="fu">skim</span>(dat)  <span class="co"># save skim object</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sk <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(sk) <span class="co"># save as data.frame</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sk)  <span class="co"># see the variable names</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sk <span class="ot">&lt;-</span> <span class="fu">skim</span>(dat)               <span class="co"># save skim object</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>sk <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(sk)       <span class="co"># convert to data frame</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sk)                      <span class="co"># preview</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  skim_type     skim_variable n_missing complete_rate character.min
 1 character     Individual ID         0     1.0000000             4
@@ -206,29 +196,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 5         &lt;NA&gt;
 6         &lt;NA&gt;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>nrows <span class="ot">&lt;-</span> <span class="fu">dim</span>(dat)[<span class="dv">1</span>] <span class="co"># total number of rows</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sk<span class="sc">$</span>N <span class="ot">&lt;-</span> nrows <span class="sc">-</span> sk<span class="sc">$</span>n_missing  <span class="co"># sample size of each variable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate sample size</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>nrows <span class="ot">&lt;-</span> <span class="fu">nrow</span>(dat)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>sk<span class="sc">$</span>N <span class="ot">&lt;-</span> nrows <span class="sc">-</span> sk<span class="sc">$</span>n_missing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="select-columns-for-a-final-summary-table" class="level2">
 <h2 class="anchored" data-anchor-id="select-columns-for-a-final-summary-table">Select columns for a final summary table</h2>
 <p>Letʻs retain only the variable, N, mean, sd, and category counts, but letʻs rename them. Since we will use the SD to compute the stadard error letʻs just rename it as SE now and save a step later. (Remember the standard error is just the standard deviation/ square root(sample size)).</p>
 <p>Note: The <code>results="asis"</code> is an option for <code>knitr</code> to layout the the results without the code formatting. Normally output from code chunks has the look of R output. <code>"asis"</code> (as in “as is”, lol) removes that behavior, so we can lay it out as a typeset table for print.</p>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># select only the variable, N, mean, sd, and category counts</span></span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the correct column names based on skimr structure</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sk.table <span class="ot">&lt;-</span> sk[<span class="fu">c</span>(<span class="st">"skim_variable"</span>, <span class="st">"N"</span>, <span class="st">"numeric.mean"</span>, <span class="st">"numeric.sd"</span>, <span class="st">"factor.top_counts"</span>)]</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(sk.table) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Variable"</span>, <span class="st">"N"</span>, <span class="st">"Mean"</span>, <span class="st">"SE"</span>, <span class="st">"Counts"</span>) <span class="co"># rename SD as SE</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>sk.table<span class="sc">$</span>SE <span class="ot">&lt;-</span> sk.table<span class="sc">$</span>SE<span class="sc">/</span><span class="fu">sqrt</span>(sk.table<span class="sc">$</span>N) <span class="co"># calculate SE</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sk.table <span class="ot">&lt;-</span> sk[, <span class="fu">c</span>(<span class="st">"skim_variable"</span>, <span class="st">"N"</span>, <span class="st">"numeric.mean"</span>, <span class="st">"numeric.sd"</span>)]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(sk.table) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Variable"</span>, <span class="st">"N"</span>, <span class="st">"Mean"</span>, <span class="st">"SD"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>sk.table<span class="sc">$</span>SE <span class="ot">&lt;-</span> sk.table<span class="sc">$</span>SD <span class="sc">/</span> <span class="fu">sqrt</span>(sk.table<span class="sc">$</span>N)  <span class="co"># Add standard error</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">knitr.kable.NA =</span> <span class="st">""</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(sk.table, <span class="at">digits=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Format for display</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">knitr.kable.NA =</span> <span class="st">""</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(sk.table, <span class="at">digits=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: right;">N</th>
 <th style="text-align: right;">Mean</th>
+<th style="text-align: right;">SD</th>
 <th style="text-align: right;">SE</th>
-<th style="text-align: left;">Counts</th>
 </tr>
 </thead>
 <tbody>
@@ -237,89 +229,90 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">339</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Clutch Completion</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Date Egg</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Species</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">Ade: 151, Gen: 120, Chi: 68</td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Island</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">Bis: 164, Dre: 124, Tor: 51</td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sex</td>
 <td style="text-align: right;">330</td>
 <td style="text-align: right;"></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">MAL: 168, FEM: 162</td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Culmen Length (mm)</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;">43.90</td>
+<td style="text-align: right;">5.47</td>
 <td style="text-align: right;">0.30</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Culmen Depth (mm)</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;">17.17</td>
+<td style="text-align: right;">1.97</td>
 <td style="text-align: right;">0.11</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Flipper Length (mm)</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;">200.79</td>
+<td style="text-align: right;">14.05</td>
 <td style="text-align: right;">0.76</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Body Mass (g)</td>
 <td style="text-align: right;">339</td>
 <td style="text-align: right;">4196.17</td>
+<td style="text-align: right;">803.20</td>
 <td style="text-align: right;">43.62</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Delta 15 N (o/oo)</td>
 <td style="text-align: right;">327</td>
 <td style="text-align: right;">8.74</td>
+<td style="text-align: right;">0.55</td>
 <td style="text-align: right;">0.03</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Delta 13 C (o/oo)</td>
 <td style="text-align: right;">328</td>
 <td style="text-align: right;">-25.68</td>
+<td style="text-align: right;">0.79</td>
 <td style="text-align: right;">0.04</td>
-<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save summary table</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(sk.table, <span class="at">file =</span> <span class="fu">addpath</span>(<span class="st">"summary_table.rds"</span>, results_path))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save summary table</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(sk.table, <span class="at">file =</span> <span class="fu">file.path</span>(results_path, <span class="st">"summary_table.rds"</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(sk.table, <span class="at">file =</span> <span class="fu">addpath</span>(<span class="st">"summary_table.rds"</span>, results_path))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 <section id="do-species-differ-in-size" class="level1">
@@ -331,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exploratory_analysis_files/figure-html/mass_species_boxplot-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="exploratory_analysis_final_fixed_files/figure-html/mass_species_boxplot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -423,7 +416,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exploratory_analysis_files/figure-html/mass_species_island_density-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="exploratory_analysis_final_fixed_files/figure-html/mass_species_island_density-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -483,7 +476,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exploratory_analysis_files/figure-html/plot_body_mass_island-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="exploratory_analysis_final_fixed_files/figure-html/plot_body_mass_island-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

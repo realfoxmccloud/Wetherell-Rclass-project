@@ -57,6 +57,22 @@ Letʻs retain only the variable, N, mean, sd, and category counts, but letʻs re
 Note: The `results="asis"` is an option for `knitr` to layout the the results without the code formatting. Normally output from code chunks has the look of R output. `"asis"` (as in "as is", lol) removes that behavior, so we can lay it out as a typeset table for print. 
 
 ```{r summary.table, results="asis"}
+library(skimr)
+
+sk <- skim(dat)
+sk <- as.data.frame(sk)
+
+message("🧠 Confirmed real chunk is running!")
+
+print(colnames(sk))  # Just to double check again
+
+# Use the correct columns we saw
+sk.table <- sk[, c("skim_variable", "N", "numeric.mean", "numeric.sd")]
+names(sk.table) <- c("Variable", "N", "Mean", "SD")
+sk.table$SE <- sk.table$SD / sqrt(sk.table$N)
+
+options(knitr.kable.NA = "")
+knitr::kable(sk.table, digits = 2)
 ```
 
 
@@ -98,6 +114,7 @@ Letʻs plot both factors together to see whatʻs going on.
 ```{r mass_species_island_density}
 ```
 
+
 # Notes
 
 For your own explorations, tables and figures can be "quick and dirty". As long as you can see what's going on, there is no need to polish them. That's in contrast to figures you'll produce for your final products (paper, report, presentation, website, etc.). Those should look as nice, polished and easy to understand as possible.
@@ -106,72 +123,36 @@ For your own explorations, tables and figures can be "quick and dirty". As long 
 
 ## Does Island Location Influence Penguin Size?
 
-**Hypothesis:** Penguins on different islands will have different body masses due to environmental factors such as food availability, temperature, and nesting conditions.
+**Hypothesis:** Penguins on different islands will have different body masses due to environmental factors.
 
-**Analysis Approach:**  
-To test this hypothesis, I used an **Analysis of Variance (ANOVA)**, which is appropriate when comparing the means of a continuous variable (body mass) across more than two groups (islands). ANOVA helps determine whether differences in group means are statistically significant, without increasing Type I error as multiple t-tests would.
+**Analysis Approach:** Use ANOVA to compare body mass across islands.
 
----
 
 ```{r setup, echo=TRUE}
 # Load necessary libraries
 library(ggplot2)
-library(dplyr)
-library(car)  # For Levene's Test
 ```
 
-```{r clean-column-names, echo=TRUE}
-# Replace spaces in column names with underscores for easier referencing
+```{r plot_body_mass_island, echo=TRUE, eval=TRUE, fig.width=7, fig.height=5}
+# Ensure there are no spaces in column names
 colnames(dat) <- gsub(" ", "_", colnames(dat))
+
+# Verify column names after cleaning
+print("Cleaned Column Names:")
+print(colnames(dat))
+
+# Check that Body_Mass_g exists and plot
+if ("Body_Mass_(g)" %in% colnames(dat)) { 
+    ggplot(dat, aes(x = Island, y = `Body_Mass_(g)`, fill = Island)) + 
+        geom_boxplot() + 
+        theme_minimal() + 
+        labs(title = "Comparison of Body Mass by Island", 
+             x = "Island", 
+             y = "Body_Mass_g")
+} else {
+    print("Error: 'Body_Mass_g' column is not found!")
+}
 ```
-
-```{r summary-stats, echo=TRUE}
-# Generate summary statistics by island
-dat %>%
-  group_by(Island) %>%
-  summarize(mean_mass = mean(`Body_Mass_(g)`, na.rm = TRUE),
-            sd_mass = sd(`Body_Mass_(g)`, na.rm = TRUE),
-            count = n())
-```
-
-```{r plot_body_mass_island, echo=TRUE, fig.width=7, fig.height=5}
-# Boxplot to visualize body mass distribution by island
-ggplot(dat, aes(x = Island, y = `Body_Mass_(g)`, fill = Island)) + 
-  geom_boxplot() + 
-  theme_minimal() + 
-  labs(title = "Comparison of Body Mass by Island", 
-       x = "Island", 
-       y = "Body Mass (g)")
-```
-
----
-
-### Statistical Test: ANOVA
-
-```{r run-anova, echo=TRUE}
-# Run ANOVA to test if body mass differs by island
-anova_model <- aov(`Body_Mass_(g)` ~ Island, data = dat)
-summary(anova_model)
-```
-
----
-
-### Assumption Checks
-
-```{r check-normality, echo=TRUE}
-# Normality check: residual plot
-plot(anova_model, which = 2)
-```
-
-```{r levene-test, echo=TRUE}
-# Test for homogeneity of variances (Levene's Test)
-leveneTest(`Body_Mass_(g)` ~ Island, data = dat)
-```
-
----
-
-### Interpretation:
-Based on the results of the ANOVA and assumption checks, I can begin to determine whether island location has a statistically significant effect on penguin body mass. The residual plot helps evaluate whether the model assumptions of normality are reasonable, and Levene's Test checks whether variance across groups is similar. If both assumptions are reasonably met, the ANOVA results can be considered valid.
 
 
 
