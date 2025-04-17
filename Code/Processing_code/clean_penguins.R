@@ -1,10 +1,12 @@
 # Load necessary libraries
 library(tidyverse)
 
-# Define file paths
+# Define file paths (go up two levels from Processing_Code to project root)
 input_path <- "../../Data/Raw_data/penguins_raw_dirty.csv"
 output_csv <- "../../Data/Processed_data/penguins_cleaned.csv"
 output_rda <- "../../Data/Processed_data/penguins_cleaned.rda"
+
+
 
 # Load raw data
 raw_data <- read_csv(input_path)
