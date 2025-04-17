@@ -1,35 +1,17 @@
 ---
-title: "An example draft analysis script"
-author: "Marguerite Butler"
-date: "03/21/2023"
+title: "Exploratory Analysis - Korey Wetherell"
+author: "Korey Wetherell"
+date: "2025-04-17"
 format: html
 execute:
   echo: true
 ---
 
-  
-This Quarto file loads the cleaned Palmer Penguins data and does some initial analysis. I find this step very helpful for seeing what results you have to work with for your talk or paper/final report. 
+This Quarto file documents my workflow for conducting an exploratory analysis of the Palmer Penguins dataset as part of our course assignment, and this first part pulls from the original instructions provided in ZOOL710. While the structure of this document follows the class guidelines, I’ve adjusted the language to reflect the steps I took and the rationale behind each part of the process.
 
-Some of what is written below is for you. I would like you to modify this quarto file to produce a document customized for your analysis and written to explain your thinking in your data analysis so feel free to modify as much as you wish. 
+I’ve chosen to keep the procedural guidance visible so that others reviewing this file — either for replication or instructional purposes — can understand how each stage connects to the overall project. This includes loading the cleaned data, generating summary statistics, and producing visualizations to better understand variable distributions and potential relationships.
 
-It is worth taking a minute to reflect on where we are in the data analysis workflow. The purpose of the previous processing document was to document data cleaning and processing in preparation for analysis. You saw that as part of the cleaning and processing step, we already had to explore the data somewhat to understand how to clean it. In general, as you explore, you find more things that need cleaning. As you clean, you find more to explore. 
-
-# The need to document your workflow
-
-Although we broke our workflow in this project into cleaning and analysis steps, depending on your project, it may be more logical to divide the scripts in other ways. The organization should naturally reflect the workflow. 
-
-In rather clean datasets at times it might make more sense to combine the cleaning and exploring code parts into a single R or Quarto file. _But if you do have real errors to fix, you will want to carefully document cleaning steps_, and probably not redo the cleaning each time you want to get a bit further on your data exploration and analysis. Itʻs a lot of baggage to carry around and also errors might creep in if you are keeping code in your script that you are not actively working on. 
-
-When there are natural breaks in the workflow (i.e., when you close the door on cleaning or on a first analysis), it can be a good idea to have start a new script because once you clean your data, you will have a new starting point for all of your downstream analyses (and not look back at the really raw data, unless you want to change your mind about some of the cleaning - thus the need for keeping an original raw data file and documenting all the steps).  
-
-This can also come up when you have a multi-stage analysis. In very complex analyses, it can make a lot of sense to have separate scripts for major analyses or workflow steps. As always, use your jugement, and be intentional about your organization. Clean organization = clear thinking.  
-
-
-# Analysis 
-
-If you did a good job in the previous step, you should have a pretty good idea of the structure of the data. 
-
-For this part of the project, develop three questions and use your R skills to answer them. Begin by producing a summary table of the data that could be included in a future paper. You should produce plots or tables and/or statistics or model fits to address your questions. 
+In short, this is not just a script — it’s a narrated walkthrough of how I approached and implemented an exploratory data analysis workflow using tools we’ve discussed in class, with the intention of grounding my final analysis in both clear documentation and replicability.
 
 # Setup
 
@@ -116,7 +98,6 @@ Letʻs plot both factors together to see whatʻs going on.
 ```{r mass_species_island_density}
 ```
 
-
 # Notes
 
 For your own explorations, tables and figures can be "quick and dirty". As long as you can see what's going on, there is no need to polish them. That's in contrast to figures you'll produce for your final products (paper, report, presentation, website, etc.). Those should look as nice, polished and easy to understand as possible.
@@ -125,37 +106,72 @@ For your own explorations, tables and figures can be "quick and dirty". As long 
 
 ## Does Island Location Influence Penguin Size?
 
-**Hypothesis:** Penguins on different islands will have different body masses due to environmental factors.
+**Hypothesis:** Penguins on different islands will have different body masses due to environmental factors such as food availability, temperature, and nesting conditions.
 
-**Analysis Approach:** Use ANOVA to compare body mass across islands.
+**Analysis Approach:**  
+To test this hypothesis, I used an **Analysis of Variance (ANOVA)**, which is appropriate when comparing the means of a continuous variable (body mass) across more than two groups (islands). ANOVA helps determine whether differences in group means are statistically significant, without increasing Type I error as multiple t-tests would.
 
+---
 
 ```{r setup, echo=TRUE}
 # Load necessary libraries
 library(ggplot2)
+library(dplyr)
+library(car)  # For Levene's Test
 ```
 
-```{r plot_body_mass_island, echo=TRUE, eval=TRUE, fig.width=7, fig.height=5}
-# Ensure there are no spaces in column names
+```{r clean-column-names, echo=TRUE}
+# Replace spaces in column names with underscores for easier referencing
 colnames(dat) <- gsub(" ", "_", colnames(dat))
-
-# Verify column names after cleaning
-print("Cleaned Column Names:")
-print(colnames(dat))
-
-# Check that Body_Mass_g exists and plot
-if ("Body_Mass_(g)" %in% colnames(dat)) { 
-    ggplot(dat, aes(x = Island, y = `Body_Mass_(g)`, fill = Island)) + 
-        geom_boxplot() + 
-        theme_minimal() + 
-        labs(title = "Comparison of Body Mass by Island", 
-             x = "Island", 
-             y = "Body_Mass_g")
-} else {
-    print("Error: 'Body_Mass_g' column is not found!")
-}
 ```
 
+```{r summary-stats, echo=TRUE}
+# Generate summary statistics by island
+dat %>%
+  group_by(Island) %>%
+  summarize(mean_mass = mean(`Body_Mass_(g)`, na.rm = TRUE),
+            sd_mass = sd(`Body_Mass_(g)`, na.rm = TRUE),
+            count = n())
+```
+
+```{r plot_body_mass_island, echo=TRUE, fig.width=7, fig.height=5}
+# Boxplot to visualize body mass distribution by island
+ggplot(dat, aes(x = Island, y = `Body_Mass_(g)`, fill = Island)) + 
+  geom_boxplot() + 
+  theme_minimal() + 
+  labs(title = "Comparison of Body Mass by Island", 
+       x = "Island", 
+       y = "Body Mass (g)")
+```
+
+---
+
+### Statistical Test: ANOVA
+
+```{r run-anova, echo=TRUE}
+# Run ANOVA to test if body mass differs by island
+anova_model <- aov(`Body_Mass_(g)` ~ Island, data = dat)
+summary(anova_model)
+```
+
+---
+
+### Assumption Checks
+
+```{r check-normality, echo=TRUE}
+# Normality check: residual plot
+plot(anova_model, which = 2)
+```
+
+```{r levene-test, echo=TRUE}
+# Test for homogeneity of variances (Levene's Test)
+leveneTest(`Body_Mass_(g)` ~ Island, data = dat)
+```
+
+---
+
+### Interpretation:
+Based on the results of the ANOVA and assumption checks, I can begin to determine whether island location has a statistically significant effect on penguin body mass. The residual plot helps evaluate whether the model assumptions of normality are reasonable, and Levene's Test checks whether variance across groups is similar. If both assumptions are reasonably met, the ANOVA results can be considered valid.
 
 
 

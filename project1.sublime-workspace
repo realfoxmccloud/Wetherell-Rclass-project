@@ -15,15 +15,6 @@
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
-		},
-		{
-			"file": "Code/Processing_code/processingfile_v2.qmd",
-			"settings":
-			{
-				"buffer_size": 6267,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
 		}
 	],
 	"build_system": "",
@@ -70,13 +61,11 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/koreywetherell/Documents/git/Wetherell_Project-template",
-		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code",
-		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Processing_code",
-		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Products"
+		"/Users/koreywetherell/Documents/git/Wetherell-Rclass-project"
 	],
 	"file_history":
 	[
+		"/Users/koreywetherell/Documents/git/Wetherell-Rclass-project/Code/Processing_code/processingfile_v2.qmd",
 		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Results/README.md",
 		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Analysis_code/exploratory_analysis.qmd",
 		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Analysis_code/README.md",
@@ -175,36 +164,6 @@
 		{
 			"sheets":
 			[
-				{
-					"buffer": 1,
-					"file": "Code/Processing_code/processingfile_v2.qmd",
-					"selected": true,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6267,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								437,
-								437
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Quarto/Quarto.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"stack_multiselect": false,
-					"type": "text"
-				}
 			]
 		}
 	],
