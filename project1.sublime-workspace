@@ -1,0 +1,300 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "Code/Processing_code/processingcode.R",
+			"settings":
+			{
+				"buffer_size": 10006,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Code/Processing_code/processingfile_v2.qmd",
+			"settings":
+			{
+				"buffer_size": 6267,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"package install",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Install Package Control"
+			],
+			[
+				"packages",
+				"Preferences: Browse Packages"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Processing_code",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Products"
+	],
+	"file_history":
+	[
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Results/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Analysis_code/exploratory_analysis.qmd",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Analysis_code/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Products/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Processing_code/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Processing_code/clean_penguins_sourced.qmd",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Products/references.bib",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Products/Manuscript/Manuscript.qmd",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Data/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Code/Processing_code/clean_penguins.R",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/Data/Raw_data/README.md",
+		"/Users/koreywetherell/Documents/git/Wetherell_Project-template/ProjectRubric.md",
+		"/Users/koreywetherell/Documents/git/zool710introkoreywetherell/_quarto.yml",
+		"/Users/koreywetherell/Documents/git/zool710-intro-korey-wetherell/_quarto.yml",
+		"/Users/koreywetherell/Documents/git/rclassdata/2023-01-31-DataIO/20070725_01forirr.txt",
+		"/Users/koreywetherell/Documents/git/zool710-intro-korey-wetherell/README.md",
+		"/Users/koreywetherell/Documents/git/zool710introkoreywetherell/mysite/_quarto.yml",
+		"/Users/koreywetherell/Documents/git/rclass-work/my-refs.bib",
+		"/Users/koreywetherell/Documents/git/rclass-work/citation.qmd",
+		"/Users/koreywetherell/Documents/git/foxmccloudmysite/index.qmd",
+		"/Users/koreywetherell/Documents/git/foxmccloudmysite/_quarto.yml"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Code/Processing_code/processingcode.R",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10006,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								315,
+								315
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/R/R.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3679.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"sheets":
+			[
+				{
+					"buffer": 1,
+					"file": "Code/Processing_code/processingfile_v2.qmd",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6267,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								437,
+								437
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Quarto/Quarto.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "project1.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 1,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 269.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

@@ -27,7 +27,8 @@ This **runs `clean_penguins.R`**, which:
 library(tidyverse)
 
 # Load cleaned data
-cleaned_data <- read_csv("/Users/koreywetherell/Documents/git/Wetherell_Project-template/Data/Processed_data/penguins_cleaned.csv")
+cleaned_data <- library(here)
+read.csv(here("Data", "Processed_data", "penguins_cleaned.csv"))
 
 # Preview the first few rows
 head(cleaned_data)
@@ -41,6 +42,17 @@ cleaned_data <- cleaned_data %>%
     Flipper_Length_mm = Flipper_Length_mm_,  
     Body_Mass_g = Body_Mass_g_ 
 )
+
+# Standardize species names (fix typos and inconsistencies)
+cleaned_data <- cleaned_data %>%
+  mutate(Species = case_when(
+    str_detect(Species, "Adelie|AdeKie|PengTin|Pengufn|PeOguin|MPenguin") ~ "Adelie",
+    str_detect(Species, "Gentoo|Ventoo") ~ "Gentoo",
+    str_detect(Species, "Chinstrap") ~ "Chinstrap",
+    TRUE ~ Species  # Keep unchanged if already correct
+  ))
+
+
 ```
 This **loads the cleaned dataset** and **renames columns**.
 
