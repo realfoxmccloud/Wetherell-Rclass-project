@@ -25,10 +25,10 @@ This **runs `clean_penguins.R`**, which:
 ```{r}
 # Load necessary libraries
 library(tidyverse)
+library(here)
 
 # Load cleaned data
-cleaned_data <- library(here)
-read.csv(here("Data", "Processed_data", "penguins_cleaned.csv"))
+cleaned_data <- read.csv(here("Data", "Processed_data", "penguins_cleaned.csv"))
 
 # Preview the first few rows
 head(cleaned_data)
