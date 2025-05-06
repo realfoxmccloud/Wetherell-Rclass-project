@@ -117,8 +117,8 @@ saveRDS(anova.table.si, file = addpath("mass_species_island_anova.rds", results_
 
 lm.fit.is <- lm(`Body Mass (g)` ~ Island + Species, dat)  
 anova.table.is <- anova(lm.fit.is)
-print(anova.table.si)
-saveRDS(anova.table.si, file = addpath("mass_island_species_anova.rds", results_path))
+print(anova.table.is)
+saveRDS(anova.table.is, file = addpath("mass_island_species_anova.rds", results_path))
 
 ## ---- mass_species_island_density ----
 
